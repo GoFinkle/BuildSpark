@@ -1,14 +1,37 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import json
+import uuid
 
 load_dotenv()
 
 app = Flask(__name__)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+PLANS_FILE = "saved_plans.json"
+
+
+def load_saved_plans():
+    if not os.path.exists(PLANS_FILE):
+        return []
+
+    try:
+        with open(PLANS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_plan_entry(entry):
+    plans = load_saved_plans()
+    plans.insert(0, entry)
+
+    with open(PLANS_FILE, "w", encoding="utf-8") as f:
+        json.dump(plans, f, indent=2, ensure_ascii=False)
+
 
 
 def parse_list(text):
@@ -73,7 +96,7 @@ def local_fallback_plan(idea, skill, environment, materials, tools, budget, size
         ])
     }
 
-def generate_buildspark_plan(idea, skill, environment, materials, tools, budget, size):
+def generate_buildspark_plan(idea, skill, environment, materials, tools, budget, size, refine):
     prompt = f"""
 You are BuildSpark, an AI woodworking and DIY build planner.
 
@@ -97,6 +120,7 @@ Materials on hand: {materials if materials else "None provided"}
 Tools on hand: {tools if tools else "None provided"}
 Budget: {budget if budget else "Not provided"}
 Size constraints: {size if size else "Not provided"}
+Refine request: {refine if refine else "None"}
 
 Rules:
 - The plan must directly match the build idea.
@@ -109,6 +133,7 @@ Rules:
 - constraints_variations: plain text bullet-style lines.
 - missing_leftovers: plain text bullet-style lines.
 - Output JSON only, no markdown, no extra commentary.
+- If a refine request is provided, adjust the same project accordingly without changing it into a different object.
 """
 
     try:
@@ -148,7 +173,8 @@ def home():
         "materials": "",
         "tools": "",
         "budget": "",
-        "size": ""
+        "size": "",
+        "refine": ""
     }
 
     if request.method == "POST":
@@ -159,6 +185,7 @@ def home():
         form_data["tools"] = request.form.get("tools", "").strip()
         form_data["budget"] = request.form.get("budget", "").strip()
         form_data["size"] = request.form.get("size", "").strip()
+        form_data["refine"] = request.form.get("refine", "").strip()
 
         result = generate_buildspark_plan(
             idea=form_data["idea"],
@@ -167,10 +194,46 @@ def home():
             materials=form_data["materials"],
             tools=form_data["tools"],
             budget=form_data["budget"],
-            size=form_data["size"]
+            size=form_data["size"],
+            refine=form_data["refine"]
         )
 
+
+        plan_entry = {
+            "id": str(uuid.uuid4()),
+            "idea": form_data["idea"],
+            "skill": form_data["skill"],
+            "environment": form_data["environment"],
+            "materials": form_data["materials"],
+            "tools": form_data["tools"],
+            "budget": form_data["budget"],
+            "size": form_data["size"],
+            "refine": form_data["refine"],
+            "result": result
+        }
+
+        save_plan_entry(plan_entry)
+
+
     return render_template("index.html", result=result, form_data=form_data)
+
+@app.route("/plans")
+def plans():
+    saved_plans = load_saved_plans()
+    return render_template("plans.html", saved_plans=saved_plans)
+
+
+def overwrite_saved_plans(plans):
+    with open(PLANS_FILE, "w", encoding="utf-8") as f:
+        json.dump(plans, f, indent=2, ensure_ascii=False)
+
+
+@app.route("/delete-plan/<plan_id>", methods=["POST"])
+def delete_plan(plan_id):
+    plans = load_saved_plans()
+    updated_plans = [plan for plan in plans if plan.get("id") != plan_id]
+    overwrite_saved_plans(updated_plans)
+    return redirect("/plans")
 
 
 if __name__ == "__main__":

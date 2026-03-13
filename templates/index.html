@@ -98,11 +98,105 @@ button:disabled {
   opacity: 0.8;
 }
 
+@media print {
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  form,
+  .template-btn,
+  #generate-btn,
+  a,
+  script,
+  .no-print {
+    display: none !important;
+  }
+
+  .results-card {
+    box-shadow: none;
+    border: none;
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .section-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    color: black;
+  }
+}
+
   </style>
 </head>
 <body>
-  <h1>BuildSpark V1</h1>
-  <p>Your AI-powered woodworking and DIY build planner.</p>
+  
+<h1>BuildSpark V2</h1>
+<p>Your AI-powered woodworking and DIY build planner.</p>
+<p style="font-size: 14px; color: #555;">
+  V2 now saves generated plans locally on your computer.
+</p>
+<p>
+  <a href="/plans">View My Saved Plans</a>
+</p>
+
+
+<div class="results-card" style="margin-bottom: 20px;">
+  <h2>Starter Templates</h2>
+  <p style="margin-top: 0;">Click one to auto-fill the form.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
+    <button type="button" class="template-btn"
+      data-idea="Simple outdoor bench made from leftover wood"
+      data-skill="Beginner"
+      data-environment="Outdoor"
+      data-materials="scrap 2x4s, deck screws, wood glue"
+      data-tools="drill, circular saw, sander"
+      data-budget="Under $50"
+      data-size="Seats 2 people">
+      Outdoor Bench
+    </button>
+
+    <button type="button" class="template-btn"
+      data-idea="Small wall shelf for indoor use"
+      data-skill="Beginner"
+      data-environment="Indoor"
+      data-materials="1x6 boards, screws, brackets"
+      data-tools="drill, level, saw"
+      data-budget="Under $40"
+      data-size="Fits a small room wall">
+      Wall Shelf
+    </button>
+
+    <button type="button" class="template-btn"
+      data-idea="Simple planter box for a patio"
+      data-skill="Beginner"
+      data-environment="Outdoor"
+      data-materials="cedar boards, screws, landscape fabric"
+      data-tools="drill, saw, measuring tape"
+      data-budget="Under $60"
+      data-size="Fits on a small patio">
+      Planter Box
+    </button>
+
+    <button type="button" class="template-btn"
+      data-idea="Basic sawhorse for workshop use"
+      data-skill="Intermediate"
+      data-environment="Indoor"
+      data-materials="2x4 lumber, screws"
+      data-tools="drill, circular saw, square"
+      data-budget="Under $35"
+      data-size="Standard workshop sawhorse">
+      Sawhorse
+    </button>
+  </div>
+</div>
+
 
   <form method="POST" id="build-form">
     <label for="idea">Build Idea</label>
@@ -131,14 +225,24 @@ button:disabled {
     <input id="budget" name="budget" type="text" placeholder="Example: Under $50" value="{{ form_data.budget }}" />
 
     <label for="size">Size Constraints</label>
-    <input id="size" name="size" type="text" placeholder="Example: Must fit on a small balcony" value="{{ form_data.size }}" />
+<input id="size" name="size" type="text" placeholder="Example: Must fit on a small balcony" value="{{ form_data.size }}" />
+
+    <label for="refine">Refine Plan</label>
+    <select id="refine" name="refine">
+      <option value="" {% if form_data.refine == "" %}selected{% endif %}>No refinement</option>
+      <option value="Make it cheaper" {% if form_data.refine == "Make it cheaper" %}selected{% endif %}>Make it cheaper</option>
+      <option value="Make it simpler" {% if form_data.refine == "Make it simpler" %}selected{% endif %}>Make it simpler</option>
+      <option value="Make it more beginner-friendly" {% if form_data.refine == "Make it more beginner-friendly" %}selected{% endif %}>Make it more beginner-friendly</option>
+      <option value="Make it fit a smaller space" {% if form_data.refine == "Make it fit a smaller space" %}selected{% endif %}>Make it fit a smaller space</option>
+    </select>
 
     <button type="submit" id="generate-btn">Generate Build Plan</button>
   </form>
 
   {% if result %}
-    <div class="results-card">
+    <div class="results-card" id="plan-output">
       <h2>BuildSpark Plan</h2>
+      <button type="button" class="no-print" onclick="window.print()">Print / Save as PDF</button>
 
       <div class="section-block">
         <h3>Concept Breakdown</h3>
@@ -168,13 +272,30 @@ button:disabled {
   {% endif %}
 
   <script>
-    const form = document.getElementById("build-form");
-    const button = document.getElementById("generate-btn");
+  const form = document.getElementById("build-form");
+  const button = document.getElementById("generate-btn");
 
-    form.addEventListener("submit", function () {
-      button.disabled = true;
-      button.textContent = "Generating...";
+  form.addEventListener("submit", function () {
+    button.disabled = true;
+    button.textContent = "Generating...";
+  });
+
+  const templateButtons = document.querySelectorAll(".template-btn");
+
+  templateButtons.forEach((templateBtn) => {
+    templateBtn.addEventListener("click", function () {
+      document.getElementById("idea").value = this.dataset.idea;
+      document.getElementById("skill").value = this.dataset.skill;
+      document.getElementById("environment").value = this.dataset.environment;
+      document.getElementById("materials").value = this.dataset.materials;
+      document.getElementById("tools").value = this.dataset.tools;
+      document.getElementById("budget").value = this.dataset.budget;
+      document.getElementById("size").value = this.dataset.size;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
-  </script>
+  });
+</script>
+
+
 </body>
 </html>
