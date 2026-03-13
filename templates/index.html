@@ -3,299 +3,551 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BuildSpark</title>
+  <title>BuildSpark V3</title>
   <style>
+    :root {
+      --bg: #f3f6f9;
+      --panel: #ffffff;
+      --panel-soft: #f9fbfc;
+      --text: #1e2933;
+      --muted: #667281;
+      --border: #d8e0e8;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #f7f7f7;
-      color: #222;
+      margin: 0;
+      background: linear-gradient(180deg, #eef3f8 0%, #f7f9fb 100%);
+      color: var(--text);
     }
 
-    h1 {
-      margin-bottom: 10px;
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
     }
 
-    p {
-      margin-bottom: 20px;
+    .hero {
+      margin-bottom: 28px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e8f0fe;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      line-height: 1.1;
+      margin: 0 0 12px;
+      max-width: 850px;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 850px;
+    }
+
+    .top-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .top-links a {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1.08fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 28px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      margin-top: 0;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .starter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .starter-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .starter-btn:hover {
+      border-color: var(--accent);
+      background: #eef5ff;
+      transform: translateY(-1px);
+    }
+
+    .starter-btn strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .starter-btn span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin: 0;
     }
 
     label {
       display: block;
       margin-top: 15px;
+      margin-bottom: 6px;
       font-weight: bold;
+      font-size: 15px;
     }
 
-    input, select, textarea, button {
+    input,
+    select,
+    textarea {
       width: 100%;
-      margin-top: 6px;
-      padding: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
+      padding: 12px 13px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      color: var(--text);
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 110px;
       resize: vertical;
+      line-height: 1.5;
     }
 
-    button {
-      margin-top: 20px;
-      background: #222;
-      color: white;
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .error-box {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #fff1f1;
+      border: 1px solid #efb3b3;
+      color: #a61b1b;
+      font-size: 14px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
       border: none;
       cursor: pointer;
-      border-radius: 6px;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: bold;
     }
 
-    button:hover {
-      background: #444;
-    }
-
-    button:disabled {
-      background: #666;
-      cursor: not-allowed;
-      opacity: 0.8;
-    }
-
-    .results-card {
-      background: white;
-      padding: 24px;
+    .primary-btn {
+      width: 100%;
       margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      background: var(--accent);
+      color: white;
     }
 
-    .section-block {
-      margin-top: 24px;
-      padding-top: 10px;
-      border-top: 1px solid #e5e5e5;
+    .primary-btn:hover {
+      background: var(--accent-dark);
     }
 
-    .section-block:first-of-type {
-      border-top: none;
-      padding-top: 0;
+    .primary-btn:disabled {
+      background: #7da2eb;
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .secondary-btn {
+      background: #eef3f8;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .secondary-btn:hover {
+      background: #e5edf6;
+    }
+
+    .result-block {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #fbfcfe;
+      border: 1px solid var(--border);
+    }
+
+    .result-block h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
     }
 
     .result-text {
       white-space: pre-wrap;
-      line-height: 1.6;
-      font-size: 16px;
+      line-height: 1.65;
+      font-size: 15px;
+      color: #27313c;
     }
 
-button:disabled {
-  background: #666;
-  cursor: not-allowed;
-  opacity: 0.8;
-}
+    .empty-state {
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      background: var(--panel-soft);
+      text-align: center;
+    }
 
-@media print {
-  body {
-    background: white;
-    margin: 0;
-    padding: 0;
-    max-width: 100%;
-  }
+    .empty-state h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
 
-  form,
-  .template-btn,
-  #generate-btn,
-  a,
-  script,
-  .no-print {
-    display: none !important;
-  }
+    .empty-state p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
 
-  .results-card {
-    box-shadow: none;
-    border: none;
-    margin-top: 0;
-    padding: 0;
-  }
+    .mini-note {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
 
-  .section-block {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
 
-  h1, h2, h3 {
-    color: black;
-  }
-}
+      .hero h1 {
+        font-size: 32px;
+      }
 
+      .starter-grid,
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .hero,
+      .input-panel,
+      .top-links,
+      .results-actions,
+      .no-print,
+      script {
+        display: none !important;
+      }
+
+      .page {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .card {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+      }
+
+      .result-block {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
   </style>
 </head>
 <body>
-  
-<h1>BuildSpark V2</h1>
-<p>Your AI-powered woodworking and DIY build planner.</p>
-<p style="font-size: 14px; color: #555;">
-  V2 now saves generated plans locally on your computer.
-</p>
-<p>
-  <a href="/plans">View My Saved Plans</a>
-</p>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-badge">BuildSpark V3</div>
+      <h1>Turn woodworking ideas into cleaner, usable build plans.</h1>
+      <p>
+        BuildSpark helps generate practical woodworking and DIY plans based on your idea,
+        skill level, tools, materials, budget, and space constraints.
+      </p>
 
-
-<div class="results-card" style="margin-bottom: 20px;">
-  <h2>Starter Templates</h2>
-  <p style="margin-top: 0;">Click one to auto-fill the form.</p>
-
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
-    <button type="button" class="template-btn"
-      data-idea="Simple outdoor bench made from leftover wood"
-      data-skill="Beginner"
-      data-environment="Outdoor"
-      data-materials="scrap 2x4s, deck screws, wood glue"
-      data-tools="drill, circular saw, sander"
-      data-budget="Under $50"
-      data-size="Seats 2 people">
-      Outdoor Bench
-    </button>
-
-    <button type="button" class="template-btn"
-      data-idea="Small wall shelf for indoor use"
-      data-skill="Beginner"
-      data-environment="Indoor"
-      data-materials="1x6 boards, screws, brackets"
-      data-tools="drill, level, saw"
-      data-budget="Under $40"
-      data-size="Fits a small room wall">
-      Wall Shelf
-    </button>
-
-    <button type="button" class="template-btn"
-      data-idea="Simple planter box for a patio"
-      data-skill="Beginner"
-      data-environment="Outdoor"
-      data-materials="cedar boards, screws, landscape fabric"
-      data-tools="drill, saw, measuring tape"
-      data-budget="Under $60"
-      data-size="Fits on a small patio">
-      Planter Box
-    </button>
-
-    <button type="button" class="template-btn"
-      data-idea="Basic sawhorse for workshop use"
-      data-skill="Intermediate"
-      data-environment="Indoor"
-      data-materials="2x4 lumber, screws"
-      data-tools="drill, circular saw, square"
-      data-budget="Under $35"
-      data-size="Standard workshop sawhorse">
-      Sawhorse
-    </button>
-  </div>
-</div>
-
-
-  <form method="POST" id="build-form">
-    <label for="idea">Build Idea</label>
-    <textarea id="idea" name="idea" placeholder="Example: I want to build a simple outdoor bench from leftover wood" required>{{ form_data.idea }}</textarea>
-
-    <label for="skill">Skill Level</label>
-    <select id="skill" name="skill">
-      <option value="Beginner" {% if form_data.skill == "Beginner" %}selected{% endif %}>Beginner</option>
-      <option value="Intermediate" {% if form_data.skill == "Intermediate" %}selected{% endif %}>Intermediate</option>
-      <option value="Advanced" {% if form_data.skill == "Advanced" %}selected{% endif %}>Advanced</option>
-    </select>
-
-    <label for="environment">Environment</label>
-    <select id="environment" name="environment">
-      <option value="Indoor" {% if form_data.environment == "Indoor" %}selected{% endif %}>Indoor</option>
-      <option value="Outdoor" {% if form_data.environment == "Outdoor" %}selected{% endif %}>Outdoor</option>
-    </select>
-
-    <label for="materials">Materials on Hand</label>
-    <textarea id="materials" name="materials" placeholder="Example: scrap 2x4s, plywood, wood screws">{{ form_data.materials }}</textarea>
-
-    <label for="tools">Tools on Hand</label>
-    <textarea id="tools" name="tools" placeholder="Example: drill, circular saw, sander">{{ form_data.tools }}</textarea>
-
-    <label for="budget">Budget</label>
-    <input id="budget" name="budget" type="text" placeholder="Example: Under $50" value="{{ form_data.budget }}" />
-
-    <label for="size">Size Constraints</label>
-<input id="size" name="size" type="text" placeholder="Example: Must fit on a small balcony" value="{{ form_data.size }}" />
-
-    <label for="refine">Refine Plan</label>
-    <select id="refine" name="refine">
-      <option value="" {% if form_data.refine == "" %}selected{% endif %}>No refinement</option>
-      <option value="Make it cheaper" {% if form_data.refine == "Make it cheaper" %}selected{% endif %}>Make it cheaper</option>
-      <option value="Make it simpler" {% if form_data.refine == "Make it simpler" %}selected{% endif %}>Make it simpler</option>
-      <option value="Make it more beginner-friendly" {% if form_data.refine == "Make it more beginner-friendly" %}selected{% endif %}>Make it more beginner-friendly</option>
-      <option value="Make it fit a smaller space" {% if form_data.refine == "Make it fit a smaller space" %}selected{% endif %}>Make it fit a smaller space</option>
-    </select>
-
-    <button type="submit" id="generate-btn">Generate Build Plan</button>
-  </form>
-
-  {% if result %}
-    <div class="results-card" id="plan-output">
-      <h2>BuildSpark Plan</h2>
-      <button type="button" class="no-print" onclick="window.print()">Print / Save as PDF</button>
-
-      <div class="section-block">
-        <h3>Concept Breakdown</h3>
-        <div class="result-text">{{ result.concept_breakdown }}</div>
+      <div class="top-links">
+        <a href="/plans">View Saved Plans ({{ saved_plan_count }})</a>
+        <a href="https://finkleautomation.com" target="_blank" rel="noopener noreferrer">FinkleAutomation</a>
       </div>
+    </section>
 
-      <div class="section-block">
-        <h3>Materials List</h3>
-        <div class="result-text">{{ result.materials_list }}</div>
-      </div>
+    <div class="layout">
+      <section class="card input-panel">
+        <h2>Create a Build Plan</h2>
+        <p class="section-sub">
+          Start from a proven template or enter your own custom idea.
+        </p>
 
-      <div class="section-block">
-        <h3>Step-by-Step Build Logic</h3>
-        <div class="result-text">{{ result.step_by_step }}</div>
-      </div>
+        <div class="starter-grid">
+          {% for prompt in starter_prompts %}
+            <button
+              type="button"
+              class="starter-btn"
+              data-idea="{{ prompt.idea }}"
+              onclick="applyStarter(this)"
+            >
+              <strong>{{ prompt.title }}</strong>
+              <span>{{ prompt.idea }}</span>
+            </button>
+          {% endfor %}
+        </div>
 
-      <div class="section-block">
-        <h3>Constraints & Variations</h3>
-        <div class="result-text">{{ result.constraints_variations }}</div>
-      </div>
+        {% if error %}
+          <div class="error-box">{{ error }}</div>
+        {% endif %}
 
-      <div class="section-block">
-        <h3>Missing Items + Leftovers</h3>
-        <div class="result-text">{{ result.missing_leftovers }}</div>
-      </div>
+        <form method="POST" id="build-form">
+          <label for="idea">Build Idea</label>
+          <textarea
+            id="idea"
+            name="idea"
+            placeholder="Example: Build a compact rustic entryway bench using leftover 2x4s and keep it beginner-friendly."
+            required
+          >{{ form_data.idea }}</textarea>
+
+          <div class="field-grid">
+            <div>
+              <label for="skill">Skill Level</label>
+              <select id="skill" name="skill">
+                <option value="Beginner" {% if form_data.skill == "Beginner" %}selected{% endif %}>Beginner</option>
+                <option value="Intermediate" {% if form_data.skill == "Intermediate" %}selected{% endif %}>Intermediate</option>
+                <option value="Advanced" {% if form_data.skill == "Advanced" %}selected{% endif %}>Advanced</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="environment">Environment</label>
+              <select id="environment" name="environment">
+                <option value="Indoor" {% if form_data.environment == "Indoor" %}selected{% endif %}>Indoor</option>
+                <option value="Outdoor" {% if form_data.environment == "Outdoor" %}selected{% endif %}>Outdoor</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="materials">Materials on Hand</label>
+          <textarea
+            id="materials"
+            name="materials"
+            placeholder="Example: scrap 2x4s, plywood, wood screws"
+          >{{ form_data.materials }}</textarea>
+
+          <label for="tools">Tools on Hand</label>
+          <textarea
+            id="tools"
+            name="tools"
+            placeholder="Example: drill, circular saw, sander"
+          >{{ form_data.tools }}</textarea>
+
+          <div class="field-grid">
+            <div>
+              <label for="budget">Budget</label>
+              <input
+                id="budget"
+                name="budget"
+                type="text"
+                placeholder="Example: Under $50"
+                value="{{ form_data.budget }}"
+              />
+            </div>
+
+            <div>
+              <label for="size">Size Constraints</label>
+              <input
+                id="size"
+                name="size"
+                type="text"
+                placeholder="Example: Must fit a small balcony"
+                value="{{ form_data.size }}"
+              />
+            </div>
+          </div>
+
+          <label for="refine">Refine Plan</label>
+          <select id="refine" name="refine">
+            <option value="" {% if form_data.refine == "" %}selected{% endif %}>No refinement</option>
+            <option value="Make it cheaper" {% if form_data.refine == "Make it cheaper" %}selected{% endif %}>Make it cheaper</option>
+            <option value="Make it simpler" {% if form_data.refine == "Make it simpler" %}selected{% endif %}>Make it simpler</option>
+            <option value="Make it more beginner-friendly" {% if form_data.refine == "Make it more beginner-friendly" %}selected{% endif %}>Make it more beginner-friendly</option>
+            <option value="Make it fit a smaller space" {% if form_data.refine == "Make it fit a smaller space" %}selected{% endif %}>Make it fit a smaller space</option>
+          </select>
+
+          <button type="submit" class="primary-btn" id="generate-btn">Generate Build Plan</button>
+          <div class="mini-note">Plans are saved locally to your BuildSpark saved plans file.</div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="results-header">
+          <div>
+            <h2 style="margin-bottom: 8px;">Build Plan Output</h2>
+            <p class="section-sub" style="margin-bottom: 0;">
+              Structured results designed to be easier to review, save, and present.
+            </p>
+          </div>
+
+          {% if result %}
+            <div class="results-actions">
+              <button type="button" class="secondary-btn no-print" onclick="copyPlan()">Copy</button>
+              <button type="button" class="secondary-btn no-print" onclick="window.print()">Print / Save PDF</button>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if result %}
+          <div id="plan-output">
+            <div class="result-block">
+              <h3>Concept Breakdown</h3>
+              <div class="result-text">{{ result.concept_breakdown }}</div>
+            </div>
+
+            <div class="result-block">
+              <h3>Materials List</h3>
+              <div class="result-text">{{ result.materials_list }}</div>
+            </div>
+
+            <div class="result-block">
+              <h3>Step-by-Step Build Logic</h3>
+              <div class="result-text">{{ result.step_by_step }}</div>
+            </div>
+
+            <div class="result-block">
+              <h3>Constraints & Variations</h3>
+              <div class="result-text">{{ result.constraints_variations }}</div>
+            </div>
+
+            <div class="result-block">
+              <h3>Missing Items + Leftovers</h3>
+              <div class="result-text">{{ result.missing_leftovers }}</div>
+            </div>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <h3>Ready to test BuildSpark?</h3>
+            <p>
+              Try a shelf, bench, planter box, organizer, or keepsake box idea.
+              The goal for V3 is a clean, usable public-facing demo you can show with confidence.
+            </p>
+          </div>
+        {% endif %}
+      </section>
     </div>
-  {% endif %}
+  </div>
 
   <script>
-  const form = document.getElementById("build-form");
-  const button = document.getElementById("generate-btn");
+    const form = document.getElementById("build-form");
+    const button = document.getElementById("generate-btn");
 
-  form.addEventListener("submit", function () {
-    button.disabled = true;
-    button.textContent = "Generating...";
-  });
-
-  const templateButtons = document.querySelectorAll(".template-btn");
-
-  templateButtons.forEach((templateBtn) => {
-    templateBtn.addEventListener("click", function () {
-      document.getElementById("idea").value = this.dataset.idea;
-      document.getElementById("skill").value = this.dataset.skill;
-      document.getElementById("environment").value = this.dataset.environment;
-      document.getElementById("materials").value = this.dataset.materials;
-      document.getElementById("tools").value = this.dataset.tools;
-      document.getElementById("budget").value = this.dataset.budget;
-      document.getElementById("size").value = this.dataset.size;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    form.addEventListener("submit", function () {
+      button.disabled = true;
+      button.textContent = "Generating...";
     });
-  });
-</script>
 
+    function applyStarter(buttonEl) {
+      document.getElementById("idea").value = buttonEl.dataset.idea;
+      document.getElementById("idea").focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
+    function copyPlan() {
+      const output = document.getElementById("plan-output");
+      if (!output) return;
+
+      navigator.clipboard.writeText(output.innerText)
+        .then(() => {
+          alert("Build plan copied.");
+        })
+        .catch(() => {
+          alert("Copy failed.");
+        });
+    }
+  </script>
 </body>
 </html>

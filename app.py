@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, redirect
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -8,10 +8,36 @@ import uuid
 load_dotenv()
 
 app = Flask(__name__)
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 PLANS_FILE = "saved_plans.json"
+
+STARTER_PROMPTS = [
+    {
+        "title": "Simple Wall Shelf",
+        "idea": "Build a simple wall shelf from leftover wood that looks clean and beginner-friendly."
+    },
+    {
+        "title": "Planter Box",
+        "idea": "Design a compact wooden planter box for outdoor use using simple joinery."
+    },
+    {
+        "title": "Rustic Side Table",
+        "idea": "Create a small rustic side table that is practical and easy to build."
+    },
+    {
+        "title": "Tool Organizer",
+        "idea": "Build a compact tool organizer for a workbench using scrap wood."
+    },
+    {
+        "title": "Keepsake Box",
+        "idea": "Make a simple wooden keepsake box with a lid and clean finished look."
+    },
+    {
+        "title": "Entryway Bench",
+        "idea": "Build a small entryway bench that is sturdy, simple, and space-conscious."
+    }
+]
 
 
 def load_saved_plans():
@@ -25,13 +51,15 @@ def load_saved_plans():
         return []
 
 
-def save_plan_entry(entry):
-    plans = load_saved_plans()
-    plans.insert(0, entry)
-
+def overwrite_saved_plans(plans):
     with open(PLANS_FILE, "w", encoding="utf-8") as f:
         json.dump(plans, f, indent=2, ensure_ascii=False)
 
+
+def save_plan_entry(entry):
+    plans = load_saved_plans()
+    plans.insert(0, entry)
+    overwrite_saved_plans(plans)
 
 
 def parse_list(text):
@@ -96,9 +124,10 @@ def local_fallback_plan(idea, skill, environment, materials, tools, budget, size
         ])
     }
 
+
 def generate_buildspark_plan(idea, skill, environment, materials, tools, budget, size, refine):
     prompt = f"""
-You are BuildSpark, an AI woodworking and DIY build planner.
+You are BuildSpark, an AI woodworking and DIY build planner for a public-facing portfolio app.
 
 Your job is to create a build plan that MATCHES the user's build idea exactly.
 Do not change the project into a different object.
@@ -124,16 +153,17 @@ Refine request: {refine if refine else "None"}
 
 Rules:
 - The plan must directly match the build idea.
-- Keep the build practical and realistic.
+- Keep the build practical, realistic, and useful.
 - Respect the user's stated materials, tools, budget, and size constraints.
 - Do not invent a different project.
-- concept_breakdown: 2-4 sentences.
+- concept_breakdown: 2 to 4 sentences, clean and readable.
 - materials_list: plain text bullet-style lines.
 - step_by_step: numbered steps in plain text.
 - constraints_variations: plain text bullet-style lines.
 - missing_leftovers: plain text bullet-style lines.
+- Include at least one practical simplification or adjustment if the build seems ambitious.
 - Output JSON only, no markdown, no extra commentary.
-- If a refine request is provided, adjust the same project accordingly without changing it into a different object.
+- If a refine request is provided, improve the same project without changing it into a different object.
 """
 
     try:
@@ -161,10 +191,12 @@ Rules:
     except Exception as e:
         print("OpenAI error:", e)
         return local_fallback_plan(idea, skill, environment, materials, tools, budget, size)
-       
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     result = None
+    error = None
 
     form_data = {
         "idea": "",
@@ -179,53 +211,59 @@ def home():
 
     if request.method == "POST":
         form_data["idea"] = request.form.get("idea", "").strip()
-        form_data["skill"] = request.form.get("skill", "").strip()
-        form_data["environment"] = request.form.get("environment", "").strip()
+        form_data["skill"] = request.form.get("skill", "").strip() or "Beginner"
+        form_data["environment"] = request.form.get("environment", "").strip() or "Indoor"
         form_data["materials"] = request.form.get("materials", "").strip()
         form_data["tools"] = request.form.get("tools", "").strip()
         form_data["budget"] = request.form.get("budget", "").strip()
         form_data["size"] = request.form.get("size", "").strip()
         form_data["refine"] = request.form.get("refine", "").strip()
 
-        result = generate_buildspark_plan(
-            idea=form_data["idea"],
-            skill=form_data["skill"],
-            environment=form_data["environment"],
-            materials=form_data["materials"],
-            tools=form_data["tools"],
-            budget=form_data["budget"],
-            size=form_data["size"],
-            refine=form_data["refine"]
-        )
+        if not form_data["idea"]:
+            error = "Please enter a build idea before generating a plan."
+        else:
+            result = generate_buildspark_plan(
+                idea=form_data["idea"],
+                skill=form_data["skill"],
+                environment=form_data["environment"],
+                materials=form_data["materials"],
+                tools=form_data["tools"],
+                budget=form_data["budget"],
+                size=form_data["size"],
+                refine=form_data["refine"]
+            )
 
+            plan_entry = {
+                "id": str(uuid.uuid4()),
+                "idea": form_data["idea"],
+                "skill": form_data["skill"],
+                "environment": form_data["environment"],
+                "materials": form_data["materials"],
+                "tools": form_data["tools"],
+                "budget": form_data["budget"],
+                "size": form_data["size"],
+                "refine": form_data["refine"],
+                "result": result
+            }
 
-        plan_entry = {
-            "id": str(uuid.uuid4()),
-            "idea": form_data["idea"],
-            "skill": form_data["skill"],
-            "environment": form_data["environment"],
-            "materials": form_data["materials"],
-            "tools": form_data["tools"],
-            "budget": form_data["budget"],
-            "size": form_data["size"],
-            "refine": form_data["refine"],
-            "result": result
-        }
+            save_plan_entry(plan_entry)
 
-        save_plan_entry(plan_entry)
+    saved_plans = load_saved_plans()
 
+    return render_template(
+        "index.html",
+        result=result,
+        error=error,
+        form_data=form_data,
+        starter_prompts=STARTER_PROMPTS,
+        saved_plan_count=len(saved_plans)
+    )
 
-    return render_template("index.html", result=result, form_data=form_data)
 
 @app.route("/plans")
 def plans():
     saved_plans = load_saved_plans()
     return render_template("plans.html", saved_plans=saved_plans)
-
-
-def overwrite_saved_plans(plans):
-    with open(PLANS_FILE, "w", encoding="utf-8") as f:
-        json.dump(plans, f, indent=2, ensure_ascii=False)
 
 
 @app.route("/delete-plan/<plan_id>", methods=["POST"])
